@@ -11,10 +11,11 @@ namespace naivebayes {
   class DataPoint {
    public:
     DataPoint();
-    std::string answer_;                        // int or string
+    std::string answer_;                   // int or string
     std::vector<std::vector<int>> image_;  // 0 means empty, 1 means taken
-    std::vector<int> image_1d;             // 0 means empty, 1 means taken
+    std::vector<char> image_1d;            // 0 means empty, 1 means taken
     friend istream& operator>>(istream& is, DataPoint& point);
   };
+
 }
 #endif  // NAIVE_BAYES_DATAPOINT_H

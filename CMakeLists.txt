@@ -30,9 +30,15 @@ if(${CMAKE_VERSION} VERSION_LESS 3.14)
     include(cmake/add_FetchContent_MakeAvailable.cmake)
 endif()
 
+#FetchContent_Declare(
+#        catch2
+#        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+#)
+
 FetchContent_Declare(
         catch2
         GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG v2.x
 )
 
 # Adds Catch2 testing library
@@ -52,7 +58,9 @@ list(APPEND CORE_SOURCE_FILES src/core/rename_this_file.cc)
 
 list(APPEND SOURCE_FILES    ${CORE_SOURCE_FILES}
                             src/visualizer/naive_bayes_app.cc
-                            src/visualizer/sketchpad.cc)
+                            src/visualizer/sketchpad.cc
+                            src/core/parse.cc
+                            src/core/datapoint.cc)
 
 list(APPEND TEST_FILES tests/rename_this_test_file.cc)
 

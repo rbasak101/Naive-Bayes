@@ -23,7 +23,6 @@ namespace naivebayes {
         std::cout << "Found line "<< i << ": " << line2 << " size: " << line2.size() << std::endl;
         for(int j = 0; j < line2.size(); j++) {
   //        std::cout << "Inserting: " << line2[j] << std::endl;
-          point.image_1d.push_back(line2[j]);
           row.push_back(line2[j]);
         }
         point.image_.push_back(row);

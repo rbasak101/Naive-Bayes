@@ -59,7 +59,6 @@ list(APPEND CORE_SOURCE_FILES src/core/rename_this_file.cc)
 list(APPEND SOURCE_FILES    ${CORE_SOURCE_FILES}
                             src/visualizer/naive_bayes_app.cc
                             src/visualizer/sketchpad.cc
-                            src/core/parse.cc
                             src/core/datapoint.cc
                             src/core/model.cc)
 

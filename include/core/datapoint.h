@@ -11,8 +11,9 @@ namespace naivebayes {
   class DataPoint {
    public:
     DataPoint();
+    int kDimensions_ = 28;
     std::string answer_;                   // int or string
-    std::vector<std::vector<int>> image_;  // 0 means empty, 1 means taken
+    std::vector<std::vector<char>> image_;  // 0 means empty, 1 means taken
     std::vector<char> image_1d;            // 0 means empty, 1 means taken
     friend istream& operator>>(istream& is, DataPoint& point);
   };

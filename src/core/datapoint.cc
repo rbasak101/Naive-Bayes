@@ -3,7 +3,6 @@
 #include "core/datapoint.h"
 #include <istream>
 
-
 namespace naivebayes {
 
   DataPoint::DataPoint() {
@@ -28,32 +27,3 @@ namespace naivebayes {
     return is;
   }
 }
-
-
-
-
-
-
-
-
-
-
-//  istream& operator>>(istream& is, DataPoint& point) {
-//    std::string line;
-//    getline(is, line);
-//    std::cout << "Here: " << line << std::endl;
-//    point.answer_ = line;
-//    for(int i = 0; i < 28; i++) {
-//      std::string line2;
-//      getline(is, line2);
-//      std::vector<char> row;
-//      std::cout << "Found line "<< i << ": " << line2 << std::endl;
-//      for(int j = 0; j < line2.size(); j++) {
-//        point.image_1d.push_back(line2[j]);
-//        row.push_back(line2[j]);
-//      }
-//      point.image_.push_back(row);
-//    }
-//
-//    return is;
-//  }

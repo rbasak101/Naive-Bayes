@@ -3,6 +3,7 @@
 #include "core/model.h"
 #include <istream>
 #include <array>
+#include <ostream>
 namespace naivebayes {
 
   void Model::Print3DVector(int shaded) {
@@ -11,10 +12,6 @@ namespace naivebayes {
       for(int c = 0; c < shaded_frequency_matrix.size(); c++) {
         for(int i = 0; i < shaded_frequency_matrix[c].size(); i++) {
           for(int j = 0; j < shaded_frequency_matrix[c][i].size(); j++) {
-            //          if(shaded_frequency_matrix[c][i][j] == 1) {
-            //            std::cout << "coord: " << c << " " << i << " " << j << std::endl;
-            //            std::cout << shaded_frequency_matrix[c][i][j] << " ";
-            //          }
             std::cout << shaded_frequency_matrix[c][i][j] << " ";
           }
           std::cout << std::endl;
@@ -39,7 +36,7 @@ namespace naivebayes {
     file_path_ = file;
     total_data_points = 0;
     for(int i = 0; i < kNumberOfDigits; i++) {
-      class_count_.push_back(0); // Make size 10 (had issues declaring fixed size)
+      class_count_.push_back(0);                // Make size 10 (had issues declaring fixed size)
     }
     InitializeClassCount();
   }
@@ -49,7 +46,7 @@ namespace naivebayes {
     std::string temp;
     int line = 1;
     while(std::getline(data_file, temp)) {
-      if(line % 29 == 1) {
+      if(line % 29 == 1) {    // Counting number of data points
         total_data_points += 1;
 //        std::cout << temp << std::endl;
         int num = std::stoi(temp);
@@ -137,6 +134,26 @@ namespace naivebayes {
       }
     }
     return answer;
+  }
+
+  ostream& operator <<(ostream & out, const Model &model) {
+    out << "Model Data \n" ;
+    out << "Saving 3D shaded matrix: \n" ;
+    for(int c = 0; c < model.shaded_frequency_matrix.size(); c++) {
+      for(int i = 0; i < model.shaded_frequency_matrix[c].size(); i++) {
+        for(int j = 0; j < model.shaded_frequency_matrix[c][i].size(); j++) {
+          out << model.shaded_frequency_matrix[c][i][j] << " ";
+        }
+        out << std::endl;
+      }
+      out << std::endl;
+    }
+
+    for(int i = 0; i < model.class_count_.size(); i++){
+      out << model.class_count_[i] << " ";
+    }
+    out << std::endl;
+    return out;
   }
 
 }

@@ -12,12 +12,7 @@ int main() {
 
   string text("1 2 3 4 55");
   string path("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/output.txt");
-//
-//  FILE *o_file = fopen(filename3.c_str(), "w+");
-//  if (o_file){
-//    fwrite(text.c_str(), 1, text.size(), o_file);
-//    cout << "Done" << endl;
-//  }
+
 
   ofstream MyFile(path);
   MyFile << "jednece rfueion fe .\n";

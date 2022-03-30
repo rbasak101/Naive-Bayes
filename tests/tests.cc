@@ -68,11 +68,7 @@ using namespace naivebayes;
   TEST_CASE("Model constructor: Class Count + total datapoints") {
     std::string path = "../../../../../../tests/samples.txt";
     Model model(path);
-//
-//    for(int i = 0; i < model.class_count_.size(); i++) {
-//      std::cout << model.class_count_[i];
-//    }
-//    std::cout <<  std::endl;
+
     REQUIRE(model.class_count_[0] == 8);
     REQUIRE(model.class_count_[1] == 9);
     REQUIRE(model.class_count_[2] == 4);
@@ -156,10 +152,9 @@ using namespace naivebayes;
     REQUIRE(model.kDimensions_ == 28);
 
     model.Initialize3DVectors(collection);
-    REQUIRE(model.shaded_frequency_matrix[5][5][16] == 0);
-    REQUIRE(model.shaded_frequency_matrix[5][5][15] == 1);
-
     model.Print3DVector(0);
+    REQUIRE(model.unshaded_frequency_matrix[5][5][16] == 0);
+    REQUIRE(model.unshaded_frequency_matrix[5][5][15] == 1);
     // Visual Test
   }
 
@@ -279,7 +274,7 @@ using namespace naivebayes;
     REQUIRE(prior_prob_9 == 10.0 / 79.0);
   }
 
-  TEST_CASE("Feature Probability") {
+  TEST_CASE("Feature Probability + Saving Model") {
     std::string path = "../../../../../../tests/samples.txt";
     Model model(path);
     std::fstream data_file = std::fstream(path);
@@ -292,74 +287,48 @@ using namespace naivebayes;
       collection.push_back(image);
     }
     REQUIRE(collection.size() == num);
-
     model.Initialize3DVectors(collection);
     model.Print3DVector(1);
 
-    std::ofstream myfile;
-    myfile.open ("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/output.txt");
-    for(int i = 0; i < 10; i++) {
-      double feature_prob = model.FeatureProbabilities(i, 1);
-      myfile <<  "Feature prob for class " << i << ": " << feature_prob << "\n";
+    SECTION("Class 0 pixels") {
+      REQUIRE(model.shaded_frequency_matrix[0][6][15] == 8);
+      REQUIRE(model.shaded_frequency_matrix[0][6][0] == 0);
+      REQUIRE(model.shaded_frequency_matrix[0][6][12] == 3);
+
+      REQUIRE(model.FeatureProbability(0, 6, 15, 1, 2, 1) == 0.9);
+      REQUIRE(model.FeatureProbability(0, 6, 0, 1, 2, 1) == 0.1);
+      REQUIRE(model.FeatureProbability(0, 6, 12, 1, 2, 1) == 0.4);
     }
-    myfile.close();
+
+    SECTION("Class 9 pixels") {
+      REQUIRE(model.shaded_frequency_matrix[9][7][14] == 9);
+      REQUIRE(model.shaded_frequency_matrix[9][0][0] == 0);
+      REQUIRE(model.shaded_frequency_matrix[9][7][11] == 2);
+
+      REQUIRE(model.FeatureProbability(9, 7, 14, 1, 2, 1)
+              == Approx(0.9090909091).epsilon(.0000000001));
+      REQUIRE(model.FeatureProbability(9, 0, 0, 1, 2, 1)
+              == Approx(0.0909090909).epsilon(.0000000001));
+      REQUIRE(model.FeatureProbability(9, 7, 11, 1, 2, 1)
+              == Approx(0.2727272727).epsilon(.0000000001));
+    }
+
+
+    SECTION("Saving probabilities: Writing to file output") {
+      // Saving probabilities: Writing to file output
+      std::ofstream myfile;
+      myfile.open("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/output.txt");
+      for(int i = 0; i < 10; i++) {
+        double feature_prob = model.FeatureProbabilities(i, 1);
+        myfile <<  "Feature prob for class " << i << ": " << feature_prob << "\n";
+      }
+      myfile.close();
+    }
+
+    SECTION("Saving Model: Writing to file save_model") {
+      std::ofstream save("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/save_model.txt");
+      save << model;
+      save.close();
+    }
 
   }
-
-
-
-
-/*
-TODO: Rename this test file. You'll also need to modify CMakeLists.txt.
-
-You can (and should) create more test files; this project is too big
-for all tests to be in the same file. Remember that, for each file (foo.cc)
-containing non-trivial code, you should have a corresponding test file
-(foo_test.cc)
-
-Make sure to add any files that you create to CMakeLists.txt.
-
-TODO Delete this comment and the placeholder test before submitting your code.
-*/
-
-
-
-  // TEST_CASE("File Reading") {
-  //   ifstream data_file("../../../../../../tests/data.txt");
-  //   cout << __fs::filesystem::current_path() << endl;
-  //   if(!data_file) {
-  //     cout << "Error opening" << endl;
-  //   }
-  //
-  //   string line;
-  //   DataPoint image1;
-  //   if(data_file.is_open()) {
-  //     cout << "Opened" << endl;
-  //     int line_num = 1;
-  //
-  //     while(line_num <= 29) {
-  //       if(line_num % 29 == 1) {
-  //         getline(data_file, line);
-  //         char l = line[0];
-  //         image1.answer_ = l;
-  //       } else {
-  //         getline(data_file, line);
-  //
-  //         cout << line << endl;
-  //         for(int i = 0; i < line.size(); i++) {
-  //           image1.image_1d.push_back(line[i]);
-  //         }
-  //       }
-  //       line_num ++;
-  //     }
-  //   }
-  //
-  //   cout << "End-of-file reached.." << endl;
-  //   int plus_num = count(image1.image_1d.begin(), image1.image_1d.end(), '+'); int hash_num = count(image1.image_1d.begin(), image1.image_1d.end(), '#');
-  //
-  //   data_file.close();
-  //   REQUIRE(image1.answer_ == '5');
-  //   REQUIRE(plus_num == 64);
-  //   REQUIRE(hash_num == 84);
-  //   REQUIRE(image1.image_1d.size() == 784);
-  // }

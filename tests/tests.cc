@@ -319,7 +319,7 @@ using namespace naivebayes;
       std::ofstream myfile;
       myfile.open("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/output.txt");
       for(int i = 0; i < 10; i++) {
-        double feature_prob = model.FeatureProbabilities(i, 1);
+        double feature_prob = model.FeatureLogProbabilities(i, 1);
         myfile <<  "Feature prob for class " << i << ": " << feature_prob << "\n";
       }
       myfile.close();

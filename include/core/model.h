@@ -7,6 +7,7 @@
 #include <array>
 #include <iostream>
 #include <iosfwd>
+#include <math.h>
 
 namespace naivebayes {
 using std::ostream;
@@ -75,9 +76,11 @@ using std::ostream;
       /**
        * @param c
        * @param shaded
-       * @return cumulative probability, using FeatureProbability(...) as helper
+       * @return LOG of cumulative probability, using FeatureProbability(...) as helper
+       * and ClassProbability(...)
+       *
        */
-      double FeatureProbabilities(int c, int shaded);
+      double FeatureLogProbabilities(int c, int shaded);
 
       friend ostream& operator<<(ostream& is, const Model& model);
 

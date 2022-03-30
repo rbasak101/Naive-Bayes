@@ -4,6 +4,7 @@
 #include <istream>
 #include <array>
 #include <ostream>
+#include <math.h>
 namespace naivebayes {
 
   void Model::Print3DVector(int shaded) {
@@ -115,25 +116,27 @@ namespace naivebayes {
     return numerator / denominator;
   }
 
-  double Model::FeatureProbabilities(int c, int shaded) {
+  double Model::FeatureLogProbabilities(int c, int shaded) {
     double answer = 1;
     std::cout << "inside feature prob " << shaded_frequency_matrix[0].size() << " " << shaded_frequency_matrix[0][0].size() << std::endl;
     if(shaded == 1) {
       for(int i = 0; i < shaded_frequency_matrix[0].size(); i++) {
         for(int j = 0; j < shaded_frequency_matrix[0][0].size(); j++) {
-          answer *= FeatureProbability(c,i,j,1,2,1);
+          answer += log(FeatureProbability(c,i,j,1,2,1));
           std::cout << "Prob for pixel: " << i << ", " << j << ": " << FeatureProbability(c,i,j,1,2,1) <<std::endl;
           std::cout << "Answer: " << answer << std::endl;
         }
       }
-      return answer;
+      double denominator = log(ClassProbability(c, true));
+      return denominator + answer;
     }
     for(int i = 0; i < unshaded_frequency_matrix[0].size(); i++) {
       for(int j = 0; j < unshaded_frequency_matrix[0][0].size(); j++) {
-        answer *= FeatureProbability(c,i,j,1,2,1);
+        answer += log(FeatureProbability(c,i,j,1,2,1));
       }
     }
-    return answer;
+    double denominator = log(ClassProbability(c, true));
+    return denominator + answer;
   }
 
   ostream& operator <<(ostream & out, const Model &model) {

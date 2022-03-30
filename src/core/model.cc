@@ -51,7 +51,7 @@ namespace naivebayes {
     while(std::getline(data_file, temp)) {
       if(line % 29 == 1) {
         total_data_points += 1;
-        std::cout << temp << std::endl;
+//        std::cout << temp << std::endl;
         int num = std::stoi(temp);
         class_count_[num] += 1;
 //        std::cout << "freq of " << num << ": " << class_count_[num] << std::endl;
@@ -90,17 +90,53 @@ namespace naivebayes {
     }
   }
 
-  void Model::LaplaceSmoothingPoint(int k, int V, int c, int row, int col, int shaded) {
-    if(shaded == 1) {
-      shaded_frequency_matrix[c][row][col] += k;
-    } else {
-      unshaded_frequency_matrix[c][row][col] += k;
+  double Model::ClassProbability(int c, bool laplace) {
+    if(laplace) {
+      double numerator = class_count_[c] + kClass_;   //
+      double denominator = vClass_*kClass_ + total_data_points;
+      return numerator / denominator;
     }
-    class_count_[c] += k*V;
+    double numerator = class_count_[c];
+    double denominator = total_data_points;
+    return numerator / denominator;
   }
 
-  void Model::LaplaceSmoothingClass(int k, int V, int c) {
-    class_count_[c] += k*V;
+  double Model::FeatureProbability(int c, int row, int col, int k , int v, int shaded){
+    double numerator = 0;
+    double denominator = 0;
+    if(shaded == 1) {
+      numerator = shaded_frequency_matrix[c][row][col] + 1;
+      denominator = class_count_[c] + v*k;
+//      std::cout << "Shaded Numerator: " << numerator << std::endl;
+//      std::cout << "Denominator: " << denominator << std::endl;
+      return numerator / denominator;
+    }
+    numerator = unshaded_frequency_matrix[c][row][col] + 1;
+    denominator = class_count_[c] + v*k;
+//    std::cout << "Unshaded Numerator: " << numerator << std::endl;
+//    std::cout << "Denominator: " << denominator << std::endl;
+    return numerator / denominator;
+  }
+
+  double Model::FeatureProbabilities(int c, int shaded) {
+    double answer = 1;
+    std::cout << "inside feature prob " << shaded_frequency_matrix[0].size() << " " << shaded_frequency_matrix[0][0].size() << std::endl;
+    if(shaded == 1) {
+      for(int i = 0; i < shaded_frequency_matrix[0].size(); i++) {
+        for(int j = 0; j < shaded_frequency_matrix[0][0].size(); j++) {
+          answer *= FeatureProbability(c,i,j,1,2,1);
+          std::cout << "Prob for pixel: " << i << ", " << j << ": " << FeatureProbability(c,i,j,1,2,1) <<std::endl;
+          std::cout << "Answer: " << answer << std::endl;
+        }
+      }
+      return answer;
+    }
+    for(int i = 0; i < unshaded_frequency_matrix[0].size(); i++) {
+      for(int j = 0; j < unshaded_frequency_matrix[0][0].size(); j++) {
+        answer *= FeatureProbability(c,i,j,1,2,1);
+      }
+    }
+    return answer;
   }
 
 }

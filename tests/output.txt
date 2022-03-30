@@ -1,0 +1,10 @@
+Feature prob for class 0: 0
+Feature prob for class 1: 0
+Feature prob for class 2: 0
+Feature prob for class 3: 0
+Feature prob for class 4: 0
+Feature prob for class 5: 0
+Feature prob for class 6: 0
+Feature prob for class 7: 0
+Feature prob for class 8: 0
+Feature prob for class 9: 0

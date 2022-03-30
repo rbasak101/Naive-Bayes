@@ -22,12 +22,16 @@ namespace naivebayes {
       std::vector<std::vector<std::vector<double>>>
           unshaded_frequency_matrix;
 
+      int kClass_ = 1;
+      int vClass_ = 10;
+
       void Print3DVector(int shaded);
       void InitializeClassCount();
       void Initialize3DVectors(std::vector<DataPoint> collection);
 
-      void LaplaceSmoothingPoint(int k, int V, int c, int row, int col, int shaded);
-      void LaplaceSmoothingClass(int k, int V, int c);
+      double ClassProbability(int c, bool laplace);
+      double FeatureProbability(int c, int row, int col, int k , int v, int shaded);
+      double FeatureProbabilities(int c, int shaded);
 
   };
 

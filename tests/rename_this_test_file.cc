@@ -201,6 +201,111 @@ using namespace naivebayes;
     model.Print3DVector(0);
   }
 
+  TEST_CASE("Pior Class Probability") {
+    std::string path = "../../../../../../tests/samples.txt";
+    Model model(path);
+    std::fstream data_file = std::fstream(path);
+
+    std::vector<DataPoint> collection;
+    int num = model.total_data_points;
+    for(int i = 1; i <= num; i++) {
+      DataPoint image = DataPoint();
+      data_file >> image;
+      collection.push_back(image);
+    }
+    REQUIRE(collection.size() == num);
+
+    model.Initialize3DVectors(collection);
+    // Visual Test
+    double prior_prob_0 = model.ClassProbability(0, false);
+    double prior_prob_1 = model.ClassProbability(1, false);
+    double prior_prob_2 = model.ClassProbability(2, false);
+    double prior_prob_3 = model.ClassProbability(3, false);
+    double prior_prob_4 = model.ClassProbability(4, false);
+    double prior_prob_5 = model.ClassProbability(5, false);
+    double prior_prob_6 = model.ClassProbability(6, false);
+    double prior_prob_7 = model.ClassProbability(7, false);
+    double prior_prob_8 = model.ClassProbability(8, false);
+    double prior_prob_9 = model.ClassProbability(9, false);
+
+    REQUIRE(prior_prob_0 == 8.0 / 69.0);
+    REQUIRE(prior_prob_1 == 9.0 / 69.0);
+    REQUIRE(prior_prob_2 == 4.0 / 69.0);
+    REQUIRE(prior_prob_3 == 8.0 / 69.0);
+    REQUIRE(prior_prob_4 == 9.0 / 69.0);
+    REQUIRE(prior_prob_5 == 5.0 / 69.0);
+    REQUIRE(prior_prob_6 == 7.0 / 69.0);
+    REQUIRE(prior_prob_7 == 5.0 / 69.0);
+    REQUIRE(prior_prob_8 == 5.0 / 69.0);
+    REQUIRE(prior_prob_9 == 9.0 / 69.0);
+  }
+
+  TEST_CASE("Prior Class Probability with Laplace") {
+    std::string path = "../../../../../../tests/samples.txt";
+    Model model(path);
+    std::fstream data_file = std::fstream(path);
+
+    std::vector<DataPoint> collection;
+    int num = model.total_data_points;
+    for(int i = 1; i <= num; i++) {
+      DataPoint image = DataPoint();
+      data_file >> image;
+      collection.push_back(image);
+    }
+    REQUIRE(collection.size() == num);
+
+    model.Initialize3DVectors(collection);
+    // Visual Test
+    double prior_prob_0 = model.ClassProbability(0, true);
+    double prior_prob_1 = model.ClassProbability(1, true);
+    double prior_prob_2 = model.ClassProbability(2, true);
+    double prior_prob_3 = model.ClassProbability(3, true);
+    double prior_prob_4 = model.ClassProbability(4, true);
+    double prior_prob_5 = model.ClassProbability(5, true);
+    double prior_prob_6 = model.ClassProbability(6, true);
+    double prior_prob_7 = model.ClassProbability(7, true);
+    double prior_prob_8 = model.ClassProbability(8, true);
+    double prior_prob_9 = model.ClassProbability(9, true);
+
+    REQUIRE(prior_prob_0 == 9.0 / 79.0);
+    REQUIRE(prior_prob_1 == 10.0 / 79.0);
+    REQUIRE(prior_prob_2 == 5.0 / 79.0);
+    REQUIRE(prior_prob_3 == 9.0 / 79.0);
+    REQUIRE(prior_prob_4 == 10.0 / 79.0);
+    REQUIRE(prior_prob_5 == 6.0 / 79.0);
+    REQUIRE(prior_prob_6 == 8.0 / 79.0);
+    REQUIRE(prior_prob_7 == 6.0 / 79.0);
+    REQUIRE(prior_prob_8 == 6.0 / 79.0);
+    REQUIRE(prior_prob_9 == 10.0 / 79.0);
+  }
+
+  TEST_CASE("Feature Probability") {
+    std::string path = "../../../../../../tests/samples.txt";
+    Model model(path);
+    std::fstream data_file = std::fstream(path);
+
+    std::vector<DataPoint> collection;
+    int num = model.total_data_points;
+    for(int i = 1; i <= num; i++) {
+      DataPoint image = DataPoint();
+      data_file >> image;
+      collection.push_back(image);
+    }
+    REQUIRE(collection.size() == num);
+
+    model.Initialize3DVectors(collection);
+    model.Print3DVector(1);
+
+    std::ofstream myfile;
+    myfile.open ("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/output.txt");
+    for(int i = 0; i < 10; i++) {
+      double feature_prob = model.FeatureProbabilities(i, 1);
+      myfile <<  "Feature prob for class " << i << ": " << feature_prob << "\n";
+    }
+    myfile.close();
+
+  }
+
 
 
 

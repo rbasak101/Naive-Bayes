@@ -5,6 +5,8 @@ namespace naivebayes {
 class Placeholder {
  public:
   std::string GetBestClass() const;
+//  friend std::istream& operator >>(std::istream& input);
+
 };
 
 }  // namespace naivebayes

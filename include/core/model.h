@@ -72,7 +72,7 @@ using std::ostream;
        * @param k smoothing constant
        * @param v smoothing constant
        * @param shaded if 1 using shaded matrix, else unshaded
-       * @return Feature probability for 1 pixel or tile
+       * @return Feature probability for 1 pixel or tile P(Fi,j = f | class = c)
        */
       double FeatureProbability(int c, int row, int col, int k , int v, int shaded);
 
@@ -90,6 +90,8 @@ using std::ostream;
       friend istream& operator>>(istream& is, const Model& model);
 
       void LoadData(std::string file);
+
+      std::vector<double> LikelihoodScores(const DataPoint &image);
 
   };
 }

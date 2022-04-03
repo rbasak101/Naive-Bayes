@@ -325,7 +325,7 @@ using namespace naivebayes;
       myfile.close();
     }
 
-    SECTION("Saving Model: Writing to file save_model") {
+    SECTION("Saving Model: Writing to file temp_save") {
       std::ofstream save("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/temp_save.txt");
       save << model;
       save.close();
@@ -351,9 +351,14 @@ using namespace naivebayes;
     REQUIRE(model.class_count_[7] == 5);
     REQUIRE(model.class_count_[8] == 5);
     REQUIRE(model.class_count_[9] == 9);
+
+    model.Print3DVector(0);
+    REQUIRE(model.unshaded_frequency_matrix[9][6][13] == 7);
+    REQUIRE(model.unshaded_frequency_matrix[9][0][0] == 9);
+    REQUIRE(model.unshaded_frequency_matrix[9][8][13] == 0);
   }
 
-  TEST_CASE("Make Prediction") {
+  TEST_CASE("Make Prediction w/o data loading") {
     std::string path = "../../../../../../tests/samples.txt";
     Model model(path);
     std::fstream data_file = std::fstream(path);
@@ -365,5 +370,215 @@ using namespace naivebayes;
       data_file >> image;
       collection.push_back(image);
     }
+    data_file.close();
+    model.Initialize3DVectors(collection);
 
+    std::fstream test_file = std::fstream("../../../../../../tests/test_one.txt");
+    DataPoint image1 = DataPoint();
+    test_file >> image1;
+    test_file.close();
+//
+    double highest = INT_MIN;
+    int index = -1;
+    for(int i = 0; i < 10; i++) {
+      if(model.LikelihoodScores(image1)[i] > highest) {
+        highest = model.LikelihoodScores(image1)[i];
+        index = i;
+      }
+      std::cout << "Likelihood class "<< i << " " << model.LikelihoodScores(image1)[i] << std::endl;
+    }
+    std::cout << "Classified: " << index << std::endl;
   }
+
+  TEST_CASE("Make Prediction w/ data loading") {
+    std::string path = "../../../../../../tests/samples.txt";
+    Model model(path);
+    model.LoadData("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/temp_save.txt");
+//    std::cout << model.class_count_[0] << std::endl;
+    std::fstream test_file = std::fstream("../../../../../../tests/test_one.txt");
+    DataPoint image1 = DataPoint();
+    test_file >> image1;
+    test_file.close();
+
+    double highest = INT_MIN;
+    int index = -1;
+    for(int i = 0; i < 10; i++) {
+      std::vector<double> scores = model.LikelihoodScores(image1);
+      if(scores[i] > highest) {
+        highest = scores[i];
+        index = i;
+      }
+      std::cout << "Likelihood class "<< i << " " << model.LikelihoodScores(image1)[i] << std::endl;
+    }
+    std::cout << "Classified: " << index << std::endl;
+  }
+
+  TEST_CASE("Make Predictions w/ data loading") {
+    std::string path = "../../../../../../tests/samples.txt";
+    Model model(path);
+    model.LoadData("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/temp_save.txt");
+    //    std::cout << model.class_count_[0] << std::endl;
+
+    std::fstream test_file = std::fstream("../../../../../../tests/testimagesandlabels.txt");
+    std::vector<DataPoint> test_collection;
+    for(int i = 1; i <= 1000; i ++) {
+      DataPoint image = DataPoint();
+      test_file >> image;
+      test_collection.push_back(image);
+    }
+    test_file.close();
+    std::cout << test_collection[0].answer_ << std::endl;
+    std::vector<int> answers;
+    for(int d = 0; d < test_collection.size(); d++) {
+      double highest = INT_MIN;
+      int index = -1;
+      for(int i = 0; i < 10; i++) {
+        std::vector<double> scores = model.LikelihoodScores(test_collection[d]);
+        if(scores[i] > highest) {
+          highest = scores[i];
+          index = i;
+        }
+//        std::cout << "Likelihood class "<< i << " " << model.LikelihoodScores(test_collection[d])[i] << std::endl;
+      }
+      std::cout << "Classified: " << index << std::endl;
+      answers.push_back(index);
+    }
+
+    double correct = 0;
+    for(int i = 0; i < answers.size(); i++) {
+      if(answers[i] == std::stoi(test_collection[i].answer_)) {
+        correct += 1;
+      }
+    }
+    std::cout << "Accuracy: " << correct / answers.size() << std::endl;
+//    double highest = INT_MIN;
+//    int index = -1;
+//    for(int i = 0; i < 10; i++) {
+//      std::vector<double> scores = model.LikelihoodScores(test_collection[d]);
+//      if(scores[i] > highest) {
+//        highest = scores[i];
+//        index = i;
+//      }
+//      std::cout << "Likelihood class "<< i << " " << model.LikelihoodScores(test_collection[d])[i] << std::endl;
+//    }
+//    std::cout << "Classified: " << index << std::endl;
+  }
+//
+//  TEST_CASE("Training model") {
+//    std::string path = "../../../../../../tests/data.txt";
+//    Model model(path);
+//    std::fstream data_file = std::fstream(path);
+//
+//    std::vector<DataPoint> collection;
+//    int num = model.total_data_points;
+//    for(int i = 1; i <= num; i++) {
+//      DataPoint image = DataPoint();
+//      data_file >> image;
+//      collection.push_back(image);
+//    }
+//    REQUIRE(collection.size() == num);
+//    model.Initialize3DVectors(collection);
+//    model.Print3DVector(1);
+//
+//    SECTION("Saving Model: Writing to file temp_save") {
+//      std::ofstream save("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/temp_save.txt");
+//      save << model;
+//      save.close();
+//    }
+//
+//  }
+//
+//  TEST_CASE("Using Loaded Data (data.txt)") {
+//    std::string path = "../../../../../../tests/data.txt";
+//    Model model(path);
+//    std::fstream data_file = std::fstream(path);
+//    model.LoadData("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/temp_save.txt");
+//
+//    std::fstream test_file = std::fstream("../../../../../../tests/testimagesandlabels.txt");
+//    std::vector<DataPoint> test_collection;
+//    for(int i = 1; i <= 1000; i ++) {
+//      DataPoint image = DataPoint();
+//      test_file >> image;
+//      test_collection.push_back(image);
+//    }
+//    test_file.close();
+//
+//    double highest = INT_MIN;
+//    int index = -1;
+//    for(int i = 0; i < 10; i++) {
+//      std::vector<double> scores = model.LikelihoodScores(test_collection[0]);
+//      if(scores[i] > highest) {
+//        highest = scores[i];
+//        index = i;
+//      }
+//      std::cout << "Likelihood class "<< i << " " << model.LikelihoodScores(test_collection[0])[i] << std::endl;
+//    }
+//    std::cout << "Classified: " << index << std::endl;
+//    REQUIRE(1 == 1);
+//  }
+//
+//  TEST_CASE("Accuracy using test set") {
+//    std::string path = "../../../../../../tests/data.txt";
+//    Model model_naive(path);
+//    std::fstream data_file = std::fstream(path);
+//
+//    std::vector<DataPoint> collection;
+//    int num = model_naive.total_data_points;
+//    std::cout << "datapoints: " << num << std::endl;
+//    for(int i = 1; i <= num; i++) {
+//      DataPoint image = DataPoint();
+//      data_file >> image;
+//      collection.push_back(image);
+//    }
+//    REQUIRE(collection.size() == num);
+//    model_naive.Initialize3DVectors(collection);
+//
+//    std::ofstream save("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/temp_save.txt");
+//    save << model_naive;
+//    save.close();
+//
+//    Model trained;
+//    trained.LoadData("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/temp_save.txt");
+////    trained.Print3DVector(1);
+////    for(int i = 0; i < trained.class_count_.size(); i++) {
+////      std::cout << trained.class_count_[i] << " ";
+////    }
+//
+//    std::fstream test_file = std::fstream("../../../../../../tests/testimagesandlabels.txt");
+//    std::vector<DataPoint> test_collection;
+//    for(int i = 1; i <= 1000; i ++) {
+//      DataPoint image = DataPoint();
+//      test_file >> image;
+//      test_collection.push_back(image);
+//    }
+//    test_file.close();
+//
+//    // Predicting
+//    std::cout << test_collection.size() << std::endl;
+//    std::vector<int> answers;
+//    for(int i = 0; i < test_collection.size() - 1; i++) {
+//      int prediction = -1;
+//      double highest = INT_MIN;
+//      for(int c = 0; c < 10; c++) {
+//        std::vector<double> scores = trained.LikelihoodScores(test_collection[i]);
+//        if(scores[c] > highest) {
+//          highest = trained.LikelihoodScores(test_collection[i])[c];
+//          prediction = c;
+//        }
+//      }
+//      answers.push_back(prediction);
+//      std::cout << "pred: " << prediction << std::endl;
+//    }
+//    std::cout << answers.size() << std::endl;
+//    REQUIRE(answers.size() == 1000);
+//
+//    double correct = 0;
+//    for(int i = 0; i < answers.size(); i++) {
+//      if(answers[i] == std::stoi(test_collection[i].answer_)) {
+//        correct += 1;
+//      }
+//    }
+//    std::cout << "Accuracy: " << correct / answers.size() << std::endl;
+//
+//
+//  }

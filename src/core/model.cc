@@ -33,6 +33,9 @@ void Model::Print3DVector(int shaded) {
     }
   }
 }
+Model::Model() {
+
+}
 
 Model::Model(std::string file) {
   file_path_ = file;
@@ -113,14 +116,10 @@ double Model::FeatureProbability(int c, int row, int col, int k, int v,
   if (shaded == 1) {
     numerator = shaded_frequency_matrix[c][row][col] + k;
     denominator = class_count_[c] + v * k;
-    //      std::cout << "Shaded Numerator: " << numerator << std::endl;
-    //      std::cout << "Denominator: " << denominator << std::endl;
     return numerator / denominator;
   }
   numerator = unshaded_frequency_matrix[c][row][col] + k;
   denominator = class_count_[c] + v * k;
-  //    std::cout << "Unshaded Numerator: " << numerator << std::endl;
-  //    std::cout << "Denominator: " << denominator << std::endl;
   return numerator / denominator;
 }
 
@@ -168,6 +167,16 @@ ostream& operator<<(ostream& out, const Model& model) {
     out << model.class_count_[i] << std::endl;
   }
 //  out << std::endl;
+
+  for (int c = 0; c < model.unshaded_frequency_matrix.size(); c++) {
+    for (int i = 0; i < model.unshaded_frequency_matrix[c].size(); i++) {
+      for (int j = 0; j < model.unshaded_frequency_matrix[c][i].size(); j++) {
+        out << model.unshaded_frequency_matrix[c][i][j] << " ";
+      }
+      //      out << std::endl;
+    }
+    out << std::endl;
+  }
   return out;
 }
 
@@ -184,9 +193,7 @@ void Model::LoadData(std::string file) {
   this->kDimensions_ = dim;
 
   std::vector<std::vector<std::vector<double>>> shaded_matrix;
-//  shaded_matrix = std::vector<std::vector<std::vector<double>>>(
-//      10, std::vector<std::vector<double>>(
-//              kDimensions_, std::vector<double>(kDimensions_, 0)));
+
   for(int a = 1; a <= kNumberOfDigits; a++){
     getline(infile, line);
 //    std::cout << "line: " << line << std::endl;
@@ -210,15 +217,60 @@ void Model::LoadData(std::string file) {
     }
     shaded_matrix.push_back(two_d);
   }
+
   this->shaded_frequency_matrix = shaded_matrix;
   getline(infile, line);
-//  std::vector<int> count = std::vector<int>(kDimensions_, 0);
-//  std::cout << "after " << line << std::endl;
   for(int i = 0; i < kNumberOfDigits; i++) {
     getline(infile, line);
-//    std::cout << "now " << line << std::endl;
     this->class_count_[i] = std::stoi(line);
   }
 
+  std::vector<std::vector<std::vector<double>>> unshaded_matrix;
+  for(int a = 1; a <= kNumberOfDigits; a++){
+    getline(infile, line);
+    //    std::cout << "line: " << line << std::endl;
+    std::string line_string = line;
+    std::stringstream iss(line_string);
+    int number;
+    std::vector<double> row_;
+    while (iss >> number) {
+      row_.push_back(number);
+    }
+
+    std::vector<std::vector<double>> two_d;
+    two_d.resize(kDimensions_);
+    for(int i = 0; i < kDimensions_; i++) {
+      two_d[i].resize(kDimensions_);
+    }
+    for(int i = 0; i < row_.size(); i++) {
+      int r = i / kDimensions_;
+      int c = i % kDimensions_;
+      two_d[r][c] = row_[i];
+    }
+    unshaded_matrix.push_back(two_d);
+  }
+  this->unshaded_frequency_matrix = unshaded_matrix;
+
+}
+
+  std::vector<double> Model::LikelihoodScores(const DataPoint &dataPoint) {
+    std::vector<std::vector<char>> image = dataPoint.image_;
+    std::vector<double> scores;
+    for(int c = 0; c < kNumberOfDigits; c++) {
+      double answer = 0;
+      for(int i = 0; i < image.size(); i++) {
+        for(int j = 0; j < image[0].size(); j++) {
+          if(image[i][j] != ' ') { // shaded
+            answer += log(FeatureProbability(c, i, j, kFeature_, vFeature_, 1));
+          } else {
+            answer += log(FeatureProbability(c, i, j, kFeature_, vFeature_, 0));
+          }
+        }
+      }
+      double denominator = log(ClassProbability(c, true));
+      scores.push_back(answer + denominator);
+    }
+    return scores;
+//    return answer + denominator;
   }
 }

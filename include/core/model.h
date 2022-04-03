@@ -19,10 +19,11 @@ using std::ostream;
        * @param file_path
        */
       Model(std::string file_path);
-
+      Model();
       int total_data_points; // Number of datapoints | datapoint includes 2d vector and actual digit
       std::string file_path_;
-      std::vector<int> class_count_;        // Keeps track of the frequencies of each digit.
+      std::vector<int> class_count_ = std::vector<int>(10, 0);
+      //std::vector<int> class_count_;        // Keeps track of the frequencies of each digit.
                                             // Index = digit, class_count_[i] = number of class i occurrences
       // Can't create with fixed size of 10 using std::vector<int> class_count_(10)
       int kNumberOfDigits = 10;
@@ -34,6 +35,8 @@ using std::ostream;
 
       int kClass_ = 1;
       int vClass_ = 10;
+      int kFeature_ = 1;
+      int vFeature_ = 2;
 
       /**
        * Helper function to print 3D vector. Used for debugging
@@ -80,9 +83,13 @@ using std::ostream;
        * and ClassProbability(...)
        *
        */
-      double FeatureLogProbabilities(int c, int shaded);
+      double FeatureLogLikelihood(int c, int shaded);
 
       friend ostream& operator<<(ostream& is, const Model& model);
+
+      friend istream& operator>>(istream& is, const Model& model);
+
+      void LoadData(std::string file);
 
   };
 }

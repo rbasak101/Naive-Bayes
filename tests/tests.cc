@@ -319,16 +319,51 @@ using namespace naivebayes;
       std::ofstream myfile;
       myfile.open("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/output.txt");
       for(int i = 0; i < 10; i++) {
-        double feature_prob = model.FeatureLogProbabilities(i, 1);
+        double feature_prob = model.FeatureLogLikelihood(i, 1);
         myfile <<  "Feature prob for class " << i << ": " << feature_prob << "\n";
       }
       myfile.close();
     }
 
     SECTION("Saving Model: Writing to file save_model") {
-      std::ofstream save("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/save_model.txt");
+      std::ofstream save("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/temp_save.txt");
       save << model;
       save.close();
+    }
+
+  }
+
+  TEST_CASE("Loading Model") {
+    std::string path = "../../../../../../tests/samples.txt";
+    Model model(path);
+    model.LoadData("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/temp_save.txt");
+    REQUIRE(model.shaded_frequency_matrix[9][7][14] == 9);
+    REQUIRE(model.shaded_frequency_matrix[9][0][0] == 0);
+    REQUIRE(model.shaded_frequency_matrix[9][7][11] == 2);
+
+    REQUIRE(model.class_count_[0] == 8);
+    REQUIRE(model.class_count_[1] == 9);
+    REQUIRE(model.class_count_[2] == 4);
+    REQUIRE(model.class_count_[3] == 8);
+    REQUIRE(model.class_count_[4] == 9);
+    REQUIRE(model.class_count_[5] == 5);
+    REQUIRE(model.class_count_[6] == 7);
+    REQUIRE(model.class_count_[7] == 5);
+    REQUIRE(model.class_count_[8] == 5);
+    REQUIRE(model.class_count_[9] == 9);
+  }
+
+  TEST_CASE("Make Prediction") {
+    std::string path = "../../../../../../tests/samples.txt";
+    Model model(path);
+    std::fstream data_file = std::fstream(path);
+
+    std::vector<DataPoint> collection;
+    int num = model.total_data_points;
+    for(int i = 1; i <= num; i++) {
+      DataPoint image = DataPoint();
+      data_file >> image;
+      collection.push_back(image);
     }
 
   }

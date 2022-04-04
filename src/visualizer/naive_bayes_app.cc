@@ -8,6 +8,8 @@ NaiveBayesApp::NaiveBayesApp()
     : sketchpad_(glm::vec2(kMargin, kMargin), kImageDimension,
                  kWindowSize - 2 * kMargin) {
   ci::app::setWindowSize((int) kWindowSize, (int) kWindowSize);
+  model_.LoadData("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/temp_save.txt");
+
 }
 
 void NaiveBayesApp::draw() {
@@ -35,14 +37,22 @@ void NaiveBayesApp::mouseDrag(ci::app::MouseEvent event) {
 
 void NaiveBayesApp::keyDown(ci::app::KeyEvent event) {
   switch (event.getCode()) {
-    case ci::app::KeyEvent::KEY_RETURN:
+    case ci::app::KeyEvent::KEY_RETURN: {
       // ask your classifier to classify the image that's currently drawn on the
       // sketchpad and update current_prediction_
+      std::cout << "Pressed entered" << std::endl;
+      DataPoint entered;
+      entered.image_ = sketchpad_.board_;
+      std::vector<DataPoint> input;
+      input.push_back(entered);
+      current_prediction_ = model_.PredictedAnswers(input)[0];
       break;
-
-    case ci::app::KeyEvent::KEY_DELETE:
+    }
+    case ci::app::KeyEvent::KEY_DELETE: {
+      std::cout << "Pressed delete" << std::endl;
       sketchpad_.Clear();
       break;
+    }
   }
 }
 

@@ -22,6 +22,15 @@ using namespace naivebayes;
    }
    return num;
  }
+ double GetAccuracy(std::vector<int> answers, std::vector<DataPoint> test_collection) {
+   double correct = 0;
+   for(int i = 0; i < answers.size(); i++) {
+     if(answers[i] == std::stoi(test_collection[i].answer_)) {
+       correct += 1;
+     }
+   }
+   return correct / answers.size();
+ }
 
   TEST_CASE("File Reading using operator: 1 datapoint ") {
     std::fstream data_file = std::fstream("../../../../../../tests/data.txt");
@@ -319,16 +328,116 @@ using namespace naivebayes;
       std::ofstream myfile;
       myfile.open("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/output.txt");
       for(int i = 0; i < 10; i++) {
-        double feature_prob = model.FeatureLogProbabilities(i, 1);
+        double feature_prob = model.FeatureLogLikelihood(i, 1);
         myfile <<  "Feature prob for class " << i << ": " << feature_prob << "\n";
       }
       myfile.close();
     }
 
-    SECTION("Saving Model: Writing to file save_model") {
-      std::ofstream save("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/save_model.txt");
+    SECTION("Saving Model: Writing to file temp_save") {
+      std::ofstream save("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/temp_save.txt");
       save << model;
       save.close();
     }
 
   }
+
+  TEST_CASE("Loading Model") {
+    std::string path = "../../../../../../tests/samples.txt";
+    Model model(path);
+    model.LoadData("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/temp_save.txt");
+    REQUIRE(model.shaded_frequency_matrix[9][7][14] == 9);
+    REQUIRE(model.shaded_frequency_matrix[9][0][0] == 0);
+    REQUIRE(model.shaded_frequency_matrix[9][7][11] == 2);
+
+    REQUIRE(model.class_count_[0] == 8);
+    REQUIRE(model.class_count_[1] == 9);
+    REQUIRE(model.class_count_[2] == 4);
+    REQUIRE(model.class_count_[3] == 8);
+    REQUIRE(model.class_count_[4] == 9);
+    REQUIRE(model.class_count_[5] == 5);
+    REQUIRE(model.class_count_[6] == 7);
+    REQUIRE(model.class_count_[7] == 5);
+    REQUIRE(model.class_count_[8] == 5);
+    REQUIRE(model.class_count_[9] == 9);
+
+    model.Print3DVector(0);
+    REQUIRE(model.unshaded_frequency_matrix[9][6][13] == 7);
+    REQUIRE(model.unshaded_frequency_matrix[9][0][0] == 9);
+    REQUIRE(model.unshaded_frequency_matrix[9][8][13] == 0);
+  }
+
+  TEST_CASE("Make Prediction w/o data loading") {
+    std::string path = "../../../../../../tests/samples.txt";
+    Model model(path);
+    std::fstream data_file = std::fstream(path);
+
+    std::vector<DataPoint> collection;
+    int num = model.total_data_points;
+    for(int i = 1; i <= num; i++) {
+      DataPoint image = DataPoint();
+      data_file >> image;
+      collection.push_back(image);
+    }
+    data_file.close();
+    model.Initialize3DVectors(collection);
+
+    std::fstream test_file = std::fstream("../../../../../../tests/test_one.txt");
+    DataPoint image1 = DataPoint();
+    test_file >> image1;
+    test_file.close();
+//
+    double highest = INT_MIN;
+    int index = -1;
+    for(int i = 0; i < 10; i++) {
+      if(model.LikelihoodScores(image1)[i] > highest) {
+        highest = model.LikelihoodScores(image1)[i];
+        index = i;
+      }
+      std::cout << "Likelihood class "<< i << " " << model.LikelihoodScores(image1)[i] << std::endl;
+    }
+    std::cout << "Classified: " << index << std::endl;
+  }
+
+  TEST_CASE("Make Prediction w/ data loading") {
+    std::string path = "../../../../../../tests/samples.txt";
+    Model model(path);
+    model.LoadData("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/temp_save.txt");
+//    std::cout << model.class_count_[0] << std::endl;
+    std::fstream test_file = std::fstream("../../../../../../tests/test_one.txt");
+    DataPoint image1 = DataPoint();
+    test_file >> image1;
+    test_file.close();
+
+    double highest = INT_MIN;
+    int index = -1;
+    for(int i = 0; i < 10; i++) {
+      std::vector<double> scores = model.LikelihoodScores(image1);
+      if(scores[i] > highest) {
+        highest = scores[i];
+        index = i;
+      }
+      std::cout << "Likelihood class "<< i << " " << model.LikelihoodScores(image1)[i] << std::endl;
+    }
+    std::cout << "Classified: " << index << std::endl;
+  }
+
+  TEST_CASE("Make Predictions with test_set data via loading") {
+    Model model;
+    model.LoadData("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/temp_save.txt");
+
+    std::fstream test_file = std::fstream("../../../../../../tests/testimagesandlabels.txt");
+    std::vector<DataPoint> test_collection;
+    for(int i = 1; i <= 1000; i ++) {
+      DataPoint image = DataPoint();
+      test_file >> image;
+      test_collection.push_back(image);
+    }
+    test_file.close(); // test datapoints loaded
+
+    // Predicting
+    std::vector<int> answers = model.PredictedAnswers(test_collection);
+    REQUIRE(GetAccuracy(answers, test_collection) > .70);
+    std::cout << "Accuracy: " << GetAccuracy(answers, test_collection) << std::endl;
+  }
+

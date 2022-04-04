@@ -19,12 +19,12 @@ using std::ostream;
        * @param file_path
        */
       Model(std::string file_path);
-
+      Model();
       int total_data_points; // Number of datapoints | datapoint includes 2d vector and actual digit
       std::string file_path_;
-      std::vector<int> class_count_;        // Keeps track of the frequencies of each digit.
-                                            // Index = digit, class_count_[i] = number of class i occurrences
-      // Can't create with fixed size of 10 using std::vector<int> class_count_(10)
+      std::vector<int> class_count_ = std::vector<int>(10, 0);  // Keeps track of the frequencies of each digit.
+                                                                      // Index = digit, class_count_[i] = number of class i occurrences
+
       int kNumberOfDigits = 10;
       int kDimensions_;
       std::vector<std::vector<std::vector<double>>>    // 1D for digit, 2D for image. Keeps track of F(i,j) frequency that are shaded
@@ -34,6 +34,8 @@ using std::ostream;
 
       int kClass_ = 1;
       int vClass_ = 10;
+      int kFeature_ = 1;
+      int vFeature_ = 2;
 
       /**
        * Helper function to print 3D vector. Used for debugging
@@ -69,7 +71,7 @@ using std::ostream;
        * @param k smoothing constant
        * @param v smoothing constant
        * @param shaded if 1 using shaded matrix, else unshaded
-       * @return Feature probability for 1 pixel or tile
+       * @return Feature probability for 1 pixel or tile P(Fi,j = f | class = c)
        */
       double FeatureProbability(int c, int row, int col, int k , int v, int shaded);
 
@@ -80,22 +82,33 @@ using std::ostream;
        * and ClassProbability(...)
        *
        */
-      double FeatureLogProbabilities(int c, int shaded);
+      double FeatureLogLikelihood(int c, int shaded);
 
       friend ostream& operator<<(ostream& is, const Model& model);
+      /**
+       *
+       * @param file: Path where model stats (shaded, unshaded, class_count variables) from
+       * training are located.
+       * Initalizes model
+       */
+      void LoadData(std::string file);
+      /**
+       *
+       * @param image Take in the datapoint and uses its 2d vector image
+       * @return vector of the likihood score for each class
+       */
+      std::vector<double> LikelihoodScores(const DataPoint &image);
+
+      /**
+       *
+       * @param test_collection: Vector of datapoints being tested for our prediction.
+       * Uses LikelihoodScores(image) to get the maximum value for that datapoint and stores the answer
+       * in a vector called answers
+       * @return returns vector of answers.
+       */
+      std::vector<int> PredictedAnswers(std::vector<DataPoint> test_collection);
 
   };
 }
 
-
-
 #endif  // NAIVE_BAYES_TRAIN_MODEL_H
-
-
-
-
-
-
-//      std::vector<std::vector<std::vector<double>>>
-//          shaded_frequency_matrix{10, std::vector< std::vector<double> >(kDimensions_ , std::vector<double>(kDimensions_, 0))};
-// stores # of images or data_points where in class c (i,j) is shaded

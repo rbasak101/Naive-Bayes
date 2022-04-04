@@ -5,8 +5,9 @@
 #include <core/rename_this_file.h>
 #include "core/model.h"
 #include "core/datapoint.h"
-using namespace std;
-using namespace naivebayes;
+//using namespace std;
+//using namespace naivebayes;
+using naivebayes::Model;
 // TODO: You may want to change main's signature to take in argc and argv
 int main() {
   // TODO: Replace this with code that reads the training data, trains a model,
@@ -15,9 +16,10 @@ int main() {
   std::cout << "Welcome to " << naivebayes::Placeholder().GetBestClass()
             << std::endl;
 
-//  std::string path = "../../../../../../tests/data.txt";
-//  Model model(path);
-//  std::fstream data_file = std::fstream(path);
+  std::string path = "../../../../../../tests/data.txt";
+  std::fstream data_file = std::fstream(path);
+  Model model(path);
+
 
 //  std::vector<DataPoint> collection;
 //  int num = model.total_data_points;

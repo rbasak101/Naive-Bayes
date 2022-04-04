@@ -150,15 +150,12 @@ double Model::FeatureLogLikelihood(int c, int shaded) {
 }
 
 ostream& operator<<(ostream& out, const Model& model) {
-  //    out << "Model Data \n" ;
-  //    out << "Saving 3D shaded matrix: \n" ;
   out << model.kDimensions_ << std::endl;
   for (int c = 0; c < model.shaded_frequency_matrix.size(); c++) {
     for (int i = 0; i < model.shaded_frequency_matrix[c].size(); i++) {
       for (int j = 0; j < model.shaded_frequency_matrix[c][i].size(); j++) {
         out << model.shaded_frequency_matrix[c][i][j] << " ";
       }
-//      out << std::endl;
     }
     out << std::endl;
   }
@@ -166,23 +163,18 @@ ostream& operator<<(ostream& out, const Model& model) {
   for (int i = 0; i < model.class_count_.size(); i++) {
     out << model.class_count_[i] << std::endl;
   }
-//  out << std::endl;
 
   for (int c = 0; c < model.unshaded_frequency_matrix.size(); c++) {
     for (int i = 0; i < model.unshaded_frequency_matrix[c].size(); i++) {
       for (int j = 0; j < model.unshaded_frequency_matrix[c][i].size(); j++) {
         out << model.unshaded_frequency_matrix[c][i][j] << " ";
       }
-      //      out << std::endl;
     }
     out << std::endl;
   }
   return out;
 }
 
-istream& operator>>(istream& is, const Model& model) {
-  return is;
-}
 
 void Model::LoadData(std::string file) {
   //    Model model = Model();
@@ -196,7 +188,6 @@ void Model::LoadData(std::string file) {
 
   for(int a = 1; a <= kNumberOfDigits; a++){
     getline(infile, line);
-//    std::cout << "line: " << line << std::endl;
     std::string line_string = line;
     std::stringstream iss(line_string);
     int number;
@@ -228,7 +219,6 @@ void Model::LoadData(std::string file) {
   std::vector<std::vector<std::vector<double>>> unshaded_matrix;
   for(int a = 1; a <= kNumberOfDigits; a++){
     getline(infile, line);
-    //    std::cout << "line: " << line << std::endl;
     std::string line_string = line;
     std::stringstream iss(line_string);
     int number;
@@ -257,20 +247,37 @@ void Model::LoadData(std::string file) {
     std::vector<std::vector<char>> image = dataPoint.image_;
     std::vector<double> scores;
     for(int c = 0; c < kNumberOfDigits; c++) {
-      double answer = 0;
+      double total = 0;
       for(int i = 0; i < image.size(); i++) {
         for(int j = 0; j < image[0].size(); j++) {
           if(image[i][j] != ' ') { // shaded
-            answer += log(FeatureProbability(c, i, j, kFeature_, vFeature_, 1));
+            total += log(FeatureProbability(c, i, j, kFeature_, vFeature_, 1));
           } else {
-            answer += log(FeatureProbability(c, i, j, kFeature_, vFeature_, 0));
+            total += log(FeatureProbability(c, i, j, kFeature_, vFeature_, 0));
           }
         }
       }
       double denominator = log(ClassProbability(c, true));
-      scores.push_back(answer + denominator);
+      scores.push_back(total + denominator);
     }
     return scores;
-//    return answer + denominator;
+  }
+
+  std::vector<int> Model::PredictedAnswers(std::vector<DataPoint> test_collection) {
+    std::vector<int> answers;
+    for(int d = 0; d < test_collection.size(); d++) {
+      double highest = INT_MIN;
+      int index = -1;
+      for(int i = 0; i < 10; i++) {
+        std::vector<double> scores = LikelihoodScores(test_collection[d]);
+        if(scores[i] > highest) {
+          highest = scores[i];
+          index = i;
+        }
+      }
+      std::cout << "Classified: " << index << std::endl;
+      answers.push_back(index);
+    }
+    return answers;
   }
 }

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "cinder/gl/gl.h"
-#include "Pixel.h"
 namespace naivebayes {
 
 namespace visualizer {
@@ -49,6 +48,7 @@ class Sketchpad {
    */
   void Clear();
 
+  std::vector<std::vector<char>> GetBoard();
   std::vector<std::vector<char>> board_;  // '+' shaded, ' ' unshaded
 
  private:
@@ -61,8 +61,6 @@ class Sketchpad {
 
   double brush_radius_;
 
-
-//  std::vector<std::vector<Pixel>> board_(28, std::vector<Pixel>(num_pixels_per_side_, Pixel()));
 };
 
 }  // namespace visualizer

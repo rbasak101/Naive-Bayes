@@ -15,27 +15,19 @@ Sketchpad::Sketchpad(const vec2& top_left_corner, size_t num_pixels_per_side,
       this->board_ = std::vector<std::vector<char>> (28, std::vector<char>(28, ' '));
 }
 
+std::vector<std::vector<char>> Sketchpad::GetBoard() {
+  return board_;
+}
 
 void Sketchpad::Draw() const {
   for (size_t row = 0; row < num_pixels_per_side_; ++row) {
     for (size_t col = 0; col < num_pixels_per_side_; ++col) {
-      // Currently, this will draw a quarter circle centered at the top-left
-      // corner with a radius of 20
-
-      // TODO: Replace the if-statement below with an if-statement that checks
-      // if the pixel at (row, col) is currently shaded
-
       if(board_[row][col] == '+') { // shaded
         ci::gl::color(ci::Color::gray(0.3f));
       }
       else {
         ci::gl::color(ci::Color("white"));
       }
-//      if (row * row + col * col <= 20 * 20) {
-//        ci::gl::color(ci::Color::gray(0.3f));
-//      } else {
-//        ci::gl::color(ci::Color("white"));
-//      }
 
       vec2 pixel_top_left = top_left_corner_ + vec2(col * pixel_side_length_,
                                                     row * pixel_side_length_);

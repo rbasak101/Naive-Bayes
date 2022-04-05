@@ -95,7 +95,7 @@ using std::ostream;
       /**
        *
        * @param image Take in the datapoint and uses its 2d vector image
-       * @return vector of the likihood score for each class
+       * @return vector of the likelihood score for each class
        */
       std::vector<double> LikelihoodScores(const DataPoint &image);
 

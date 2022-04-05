@@ -38,11 +38,9 @@ void NaiveBayesApp::mouseDrag(ci::app::MouseEvent event) {
 void NaiveBayesApp::keyDown(ci::app::KeyEvent event) {
   switch (event.getCode()) {
     case ci::app::KeyEvent::KEY_RETURN: {
-      // ask your classifier to classify the image that's currently drawn on the
-      // sketchpad and update current_prediction_
       std::cout << "Pressed entered" << std::endl;
       DataPoint entered;
-      entered.image_ = sketchpad_.board_;
+      entered.image_ = sketchpad_.GetBoard();
       std::vector<DataPoint> input;
       input.push_back(entered);
       current_prediction_ = model_.PredictedAnswers(input)[0];

@@ -1,12 +1,8 @@
 #include <catch2/catch.hpp>
 #include <iostream>
-#include <fstream>
-#include <filesystem>
 #include <string>
 #include <vector>
-//#include "core/parse.h"
 #include "core/datapoint.h"
-#include <core/rename_this_file.h>
 #include "core/model.h"
 
 using namespace naivebayes;
@@ -283,6 +279,7 @@ using namespace naivebayes;
     REQUIRE(prior_prob_9 == 10.0 / 79.0);
   }
 
+  // Week 2
   TEST_CASE("Feature Probability + Saving Model") {
     std::string path = "../../../../../../tests/samples.txt";
     Model model(path);
@@ -368,7 +365,7 @@ using namespace naivebayes;
   }
 
   TEST_CASE("Make Prediction w/o data loading") {
-    std::string path = "../../../../../../tests/samples.txt";
+    std::string path = "../../../../../../tests/data.txt";
     Model model(path);
     std::fstream data_file = std::fstream(path);
 
@@ -382,21 +379,33 @@ using namespace naivebayes;
     data_file.close();
     model.Initialize3DVectors(collection);
 
+    // Read in image
     std::fstream test_file = std::fstream("../../../../../../tests/test_one.txt");
     DataPoint image1 = DataPoint();
     test_file >> image1;
     test_file.close();
-//
-    double highest = INT_MIN;
-    int index = -1;
-    for(int i = 0; i < 10; i++) {
-      if(model.LikelihoodScores(image1)[i] > highest) {
-        highest = model.LikelihoodScores(image1)[i];
-        index = i;
+
+
+    SECTION("Finding max likelihood score") {
+      double highest = INT_MIN;
+      int index = -1;
+      for(int i = 0; i < 10; i++) {
+        if(model.LikelihoodScores(image1)[i] > highest) {
+          highest = model.LikelihoodScores(image1)[i];
+          index = i;
+        }
+        std::cout << "Likelihood class "<< i << " " << model.LikelihoodScores(image1)[i] << std::endl;
       }
-      std::cout << "Likelihood class "<< i << " " << model.LikelihoodScores(image1)[i] << std::endl;
+      std::cout << "Classified: " << index << std::endl;
+      REQUIRE(index == 1);
     }
-    std::cout << "Classified: " << index << std::endl;
+
+    SECTION("Saving model to file") {
+      std::ofstream save("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/temp2_save.txt");
+      save << model;
+      save.close();
+    }
+
   }
 
   TEST_CASE("Make Prediction w/ data loading") {
@@ -424,7 +433,7 @@ using namespace naivebayes;
 
   TEST_CASE("Make Predictions with test_set data via loading") {
     Model model;
-    model.LoadData("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/temp_save.txt");
+    model.LoadData("/Users/Rbasak101/Desktop/Cinder/my-projects/naivebayes-rbasak101/tests/model_save.txt");
 
     std::fstream test_file = std::fstream("../../../../../../tests/testimagesandlabels.txt");
     std::vector<DataPoint> test_collection;
